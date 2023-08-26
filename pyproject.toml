@@ -7,9 +7,10 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-fastapi = "^0.101.1"
+fastapi = {extras = ["testclient"], version = "^0.102.0"}
 polars = "^0.18.15"
 uvicorn = "^0.23.2"
+httpx = "^0.24.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.0"

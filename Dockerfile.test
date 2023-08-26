@@ -1,0 +1,10 @@
+# The builder image, used to build the virtual environment
+FROM python:3.11-slim-buster
+
+WORKDIR /app
+
+RUN pip install requests
+
+COPY client.py ./
+
+ENTRYPOINT ["python3", "client.py"]
