@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 import polars as pl
 
 data = {}
@@ -7,7 +7,12 @@ data = {}
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Load the CSV
-    data['weather_data'] = pl.read_csv("weather_data.csv")
+    try:
+        data['weather_data'] = pl.read_csv("weather_data.csv")
+    except FileNotFoundError:
+        data['error'] = True
+        print("Missing weather_data.csv, please make sure it exists")
+    data['error'] = False
     yield
     # cleanup weather_data
     data.clear()
@@ -15,10 +20,16 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 @app.get("/")
 async def root():
+    if data['error']:
+        raise HTTPException(status_code=500, detail="No weather data loaded")
+
     return {'results': list(data['weather_data'].iter_rows(named=True))}
 
 @app.get('/query')
 async def query(limit: int = 0, date: str = "", weather: str = ""):
+    if data['error']:
+        raise HTTPException(status_code=500, detail="No weather data loaded")
+    
     filters = query_filters(date, weather)
 
     if limit > 0 and filters:

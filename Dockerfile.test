@@ -1,4 +1,3 @@
-# The builder image, used to build the virtual environment
 FROM python:3.11-slim-buster
 
 WORKDIR /app
